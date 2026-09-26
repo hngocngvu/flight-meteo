@@ -16,8 +16,11 @@ def get_data(url, api):
     r= requests.get(url, params= params)
     return r.json()
 
+def crawl_flight(url, api, file="data/json/flight_data.json"):
+    data= get_data(url, api)
+    with open(file,"w") as f:
+        json.dump(data, f)
+
 if __name__ == "__main__":
-    flight_data= get_data(aviation_url, aviation_api)
-    with open("data/json/flight_data.json", "w") as f:
-        json.dump(flight_data, f)
+    crawl_flight(aviation_url, aviation_api)
     

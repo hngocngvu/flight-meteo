@@ -5,7 +5,6 @@ import pandas as pd
 from sqlalchemy import (Float, Boolean, DateTime, String, Text, Integer)
 load_dotenv("../.env")
 
-DATABASE_URL= os.getenv("DATABASE_URL")
 DB_USER= os.getenv("DB_USER")
 DB_PW= os.getenv("DB_PW")
 DB_IP= os.getenv("DB_IP")
@@ -59,7 +58,10 @@ meteo_dtype={
     "apparent_temp": Float
 }
 
-if __name__ == "__main__":
+def to_sql(engine, flights, meteo, flights_dtype, meteo_dtype):
     flights.to_sql("flights", engine, "flight_meteo", if_exists= "fail", index=False, method= "multi", dtype= flights_dtype)
     meteo.to_sql("meteo", engine, "flight_meteo", if_exists= "fail", index=False, method= "multi", dtype= meteo_dtype)
+
+if __name__ == "__main__":
+    to_sql(engine, flights, meteo, flights_dtype, meteo_dtype)
 

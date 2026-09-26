@@ -1,7 +1,7 @@
 import json 
 import pandas as pd
 import numpy as np
-with open("data/processed.json", "r") as f:
+with open("data/json/processed.json", "r") as f:
     data= json.load(f)
 
 """
@@ -16,7 +16,7 @@ columns_arrival_departure= ["iata", "delay", "timezone", "scheduled", "airport"]
 
 columns_meteo= ["iata", "time", "temp_2m", "humidity_2m", "weather_code", "precipitation", "wind_speed_10m", "wind_direction_10m", "cloud_cover", "wind_gusts_10m", "apparent_temp"]
 
-def clean_text(txt):
+def clean_text(txt: str):
     return txt.replace("\r", "").replace("\n","").strip()
 
 def convert_arrival_departure(data, columns):
@@ -30,14 +30,14 @@ def convert_arrival_departure(data, columns):
         row1["delay"]= np.nan if flight["arrival"]["delay"] is None else float(flight["arrival"]["delay"])
         row1["scheduled"]= flight["arrival"]["scheduled"]
         row1["timezone"]= flight["arrival"]["timezone"]
-        row1["airport"]= clean_text(str((flight["arrival"]["airport"])))
+        row1["airport"]= clean_text(str(flight["arrival"]["airport"]))
         arrival.append(row1)
 
         row2["iata"]= str(flight["departure"]["iata"])
         row2["delay"]= np.nan if flight["departure"]["delay"] is None else float(flight["departure"]["delay"])
         row2["scheduled"]= flight["departure"]["scheduled"]
         row2["timezone"]= flight["departure"]["timezone"]
-        row2["airport"]= clean_text(str((flight["departure"]["airport"])))
+        row2["airport"]= clean_text(str(flight["departure"]["airport"]))
         departure.append(row2)
 
     df1= pd.DataFrame(arrival, columns=columns)
@@ -103,11 +103,11 @@ if __name__ == "__main__":
     os.makedirs("data/csv", exist_ok= True)
 
     flights= convert_arrival_departure(data, columns_arrival_departure)
-    print(flights.iloc[45])
+    print(flights.info())
     flights.to_csv("data/csv/flights.csv", index= False)
 
     meteo= convert_meteo(data, columns_meteo)
-    print(meteo.iloc[0])
+    print(meteo.info())
     meteo.to_csv("data/csv/meteo.csv", index= False)
 
 

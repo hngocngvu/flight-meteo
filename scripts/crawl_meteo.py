@@ -24,7 +24,7 @@ openmeteo = openmeteo_requests.Client(session = retry_session)
 
 meteo_url= "https://archive-api.open-meteo.com/v1/archive"
 
-def get_data(url, lat, lon, start= "2026-09-12", end= "2026-09-12"):
+def get_data(openmeteo, url, lat, lon, start= "2026-09-12", end= "2026-09-12"):
     params= {
         "latitude": lat,
         "longitude": lon,
@@ -38,11 +38,15 @@ def get_data(url, lat, lon, start= "2026-09-12", end= "2026-09-12"):
 
     return r[0]
 
-if __name__ == "__main__":
-    with open ("data/geo_data.json") as f:
+def crawl_meteo(cache_session, meteo_url, geo_file= "data/json/geo_data.json", meteo_file="data/json/meteo_data.json"):
+    retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
+    openmeteo = openmeteo_requests.Client(session = retry_session)
+
+    with open(geo_file, "r") as f:
         geo_data= json.load(f)
 
     geo_info_list= list()
+
     for geo in geo_data:
         geo_info= dict()
         
@@ -53,10 +57,10 @@ if __name__ == "__main__":
         geo_info_list.append(geo_info.copy())
 
     meteo= list()
+
     for geo_info in geo_info_list:
-        response= get_data(meteo_url, geo_info["lat"], geo_info["lon"])
+        response= get_data(openmeteo, meteo_url, geo_info["lat"], geo_info["lon"])
         hourly = response.Hourly()
-        hourly_time = hourly.Time()
         hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy().tolist()
         hourly_relative_humidity_2m = hourly.Variables(1).ValuesAsNumpy().tolist()
         hourly_weather_code = hourly.Variables(2).ValuesAsNumpy().tolist()
@@ -96,5 +100,8 @@ if __name__ == "__main__":
 
         meteo.append(m.copy())
 
-    with open("data/json/meteo_data.json", "w") as f:
+    with open(meteo_file, "w") as f:
         json.dump(meteo, f)
+
+if __name__ == "__main__":
+    crawl_meteo(cache_session, meteo_url)
