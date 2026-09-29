@@ -1,5 +1,4 @@
 import pandas as pd
-from sqlalchemy import text
 
 from src.database.seeds import weather_code_rows
 from src.database.schema import flights_dtype, meteo_dtype
