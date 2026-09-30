@@ -3,3 +3,6 @@ notes.txt
 *.json
 *.csv
 *.sqlite
+
+__pycache__/
+*.pyc
