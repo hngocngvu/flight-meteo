@@ -36,5 +36,40 @@ async def get_flights(airport: str|None=None, scheduled: datetime|None=None,
             result= conn.execute(query, params)
 
         return result.mappings().all() #convert to RowMapping- quite similar to dict()
-    
 
+
+@app.get("/meteo")
+async def get_meteo(airport: str|None=None, time: datetime|None=None):
+    params={
+        "airport": airport,
+        "time": time
+    }
+    with engine.connect() as conn:
+        if airport is not None and time is not None:
+            query= text("""
+        SELECT flights.airport, meteo.*, weather.description 
+        FROM meteo JOIN flights ON meteo.iata= flights.iata 
+        JOIN weather ON weather.code= meteo.weather_code
+        WHERE meteo.time= :time AND flights.airport= :airport
+        """)
+            result= conn.execute(query, params)
+
+        elif time is not None:
+            query= text("""
+                    SELECT flights.airport, meteo.*, weather.description 
+                    FROM meteo JOIN flights ON meteo.iata= flights.iata 
+                    JOIN weather ON weather.code= meteo.weather_code
+                    WHERE meteo.time= :time
+                    """)
+            result= conn.execute(query, params)
+
+        elif airport is not None: 
+            query= text("""
+                    SELECT flights.airport, meteo.*, weather.description 
+                    FROM meteo JOIN flights ON meteo.iata= flights.iata 
+                    JOIN weather ON weather.code= meteo.weather_code
+                    WHERE flights.airport= :airport
+                    """)
+            result= conn.execute(query, params)
+    
+        return result.mappings().all()
