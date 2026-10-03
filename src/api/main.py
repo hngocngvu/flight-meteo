@@ -19,8 +19,8 @@ async def get_flights(airport: str|None=None, scheduled: datetime|None=None,
         if scheduled is not None:
             query= text("""
         SELECT flights.airport, flights.scheduled, flights.timezone, flights.delay, flights.arrival, meteo.*, weather.description
-        FROM flights JOIN meteo ON flights.iata= meteo.iata
-        JOIN weather ON weather.code= meteo.weather_code
+        FROM flights LEFT JOIN meteo ON flights.iata= meteo.iata
+        LEFT JOIN weather ON weather.code= meteo.weather_code
         WHERE (flights.airport LIKE :airport AND flights.scheduled= :scheduled AND flights.scheduled= meteo.time)
     """)
             result= conn.execute(query, params)
@@ -28,8 +28,8 @@ async def get_flights(airport: str|None=None, scheduled: datetime|None=None,
         elif start is not None and end is not None:
             query= text("""
         SELECT flights.airport, flights.scheduled, flights.timezone, flights.delay, flights.arrival, meteo.*, weather.description
-        FROM flights JOIN meteo ON flights.iata= meteo.iata
-        JOIN weather ON weather.code= meteo.weather_code
+        FROM flights LEFT JOIN meteo ON flights.iata= meteo.iata
+        LEFT JOIN weather ON weather.code= meteo.weather_code
         WHERE (flights.airport LIKE :airport 
         AND (flights.scheduled >= :start AND flights.scheduled <= :end) AND flights.scheduled= meteo.time)
     """)
@@ -48,8 +48,8 @@ async def get_meteo(airport: str|None=None, time: datetime|None=None):
         if airport is not None and time is not None:
             query= text("""
                     SELECT DISTINCT flights.airport, meteo.*, weather.description 
-                    FROM meteo JOIN flights ON meteo.iata= flights.iata 
-                    JOIN weather ON weather.code= meteo.weather_code
+                    FROM flights LEFT JOIN meteo ON meteo.iata= flights.iata 
+                    LEFT JOIN weather ON weather.code= meteo.weather_code
                     WHERE meteo.time= :time AND flights.airport LIKE :airport
                     """)
             result= conn.execute(query, params)
@@ -57,8 +57,8 @@ async def get_meteo(airport: str|None=None, time: datetime|None=None):
         elif time is not None and airport is None:
             query= text("""
                     SELECT DISTINCT flights.airport, meteo.*, weather.description 
-                    FROM meteo JOIN flights ON meteo.iata= flights.iata 
-                    JOIN weather ON weather.code= meteo.weather_code
+                    FROM flights LEFT JOIN meteo ON meteo.iata= flights.iata 
+                    LEFT JOIN weather ON weather.code= meteo.weather_code
                     WHERE meteo.time= :time
                     """)
             result= conn.execute(query, params)
@@ -66,8 +66,8 @@ async def get_meteo(airport: str|None=None, time: datetime|None=None):
         elif airport is not None and time is None: 
             query= text("""
                     SELECT DISTINCT flights.airport, meteo.*, weather.description 
-                    FROM meteo JOIN flights ON meteo.iata= flights.iata 
-                    JOIN weather ON weather.code= meteo.weather_code
+                    FROM flights LEFT JOIN meteo ON meteo.iata= flights.iata 
+                    LEFT JOIN weather ON weather.code= meteo.weather_code
                     WHERE flights.airport LIKE :airport
                     """)
             result= conn.execute(query, params)
