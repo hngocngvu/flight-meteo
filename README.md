@@ -4,6 +4,16 @@ An end-to-end project that builds a data pipeline for collecting, transforming, 
 
 Current progress: The project is currently in the Data Engineering phase, focusing on API data ingestion, data transformation, database design, and FastAPI-based data access. The AI Engineering layer, including LLM-powered data interaction and tool/function calling, is planned as the next phase.
 
+# Set up
+
+- Create an **.env** file having the same level with dir **flight-meteo** with the variables in **.env.example**
+
+- Create a python/conda environment and run:
+
+```
+pip install -r requirements.txt
+```
+
 # Run data crawling, processing & migration scripts 
 
 ## Data crawling
@@ -14,11 +24,18 @@ Current progress: The project is currently in the Data Engineering phase, focusi
 python scripts/crawl_flight.py
 ```
 
-- Flights (https://api.aviationstack.com/v1/flights)
+- Geographical location (lat & lon) of airports (https://airportsapi.com/api/airports/)
 
 ```
-python scripts/crawl_flight.py
+python scripts/crawl_geo.py
 ```
+
+- Meteo data (in hours) of airports (https://archive-api.open-meteo.com/v1/archive)
+
+```
+python scripts/crawl_meteo.py
+```
+
 # Run API docs
 
 ```

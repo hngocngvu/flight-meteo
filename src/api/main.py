@@ -41,34 +41,34 @@ async def get_flights(airport: str|None=None, scheduled: datetime|None=None,
 @app.get("/meteo")
 async def get_meteo(airport: str|None=None, time: datetime|None=None):
     params={
-        "airport": airport,
+        "airport": f"%{airport}%",
         "time": time
     }
     with engine.connect() as conn:
         if airport is not None and time is not None:
             query= text("""
-        SELECT flights.airport, meteo.*, weather.description 
-        FROM meteo JOIN flights ON meteo.iata= flights.iata 
-        JOIN weather ON weather.code= meteo.weather_code
-        WHERE meteo.time= :time AND flights.airport= :airport
-        """)
+                    SELECT DISTINCT flights.airport, meteo.*, weather.description 
+                    FROM meteo JOIN flights ON meteo.iata= flights.iata 
+                    JOIN weather ON weather.code= meteo.weather_code
+                    WHERE meteo.time= :time AND flights.airport LIKE :airport
+                    """)
             result= conn.execute(query, params)
 
-        elif time is not None:
+        elif time is not None and airport is None:
             query= text("""
-                    SELECT flights.airport, meteo.*, weather.description 
+                    SELECT DISTINCT flights.airport, meteo.*, weather.description 
                     FROM meteo JOIN flights ON meteo.iata= flights.iata 
                     JOIN weather ON weather.code= meteo.weather_code
                     WHERE meteo.time= :time
                     """)
             result= conn.execute(query, params)
 
-        elif airport is not None: 
+        elif airport is not None and time is None: 
             query= text("""
-                    SELECT flights.airport, meteo.*, weather.description 
+                    SELECT DISTINCT flights.airport, meteo.*, weather.description 
                     FROM meteo JOIN flights ON meteo.iata= flights.iata 
                     JOIN weather ON weather.code= meteo.weather_code
-                    WHERE flights.airport= :airport
+                    WHERE flights.airport LIKE :airport
                     """)
             result= conn.execute(query, params)
     
